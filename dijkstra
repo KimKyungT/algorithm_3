@@ -1,0 +1,156 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+int number ;
+int* passOrNot;
+int* shortestPath;
+int** a;
+int findSmall();
+void dijkstra(int fixed);
+
+int main(void) {
+	printf("노드의 개수는 몇 개입니까?");
+	scanf_s("%d", &number);
+	
+	a = (int**)malloc(sizeof(int*) * number);
+	for (int i = 0; i < number; i++) {
+		a[i] = (int*)malloc(sizeof(int) * number);
+	}
+	
+	for (int i = 0; i < number; i++) {
+		printf("인접 행렬의 %d 행 값을 입력해주세요(인접하지 않을 시 100000을 입력하세요)>>", i);
+		for (int j = 0; j < number; j++) {
+			scanf_s("%d", &a[i][j]);
+		}
+	}
+	
+	passOrNot = (int*)malloc(sizeof(int) * number);
+	shortestPath = (int*)malloc(sizeof(int) * number);
+
+	
+	for (int i = 0; i < number; i++) {
+		passOrNot[i] = 0;
+	}
+	dijkstra(0);
+	for (int i = 0; i < number; i++) {
+		printf("%d ", shortestPath[i]);
+	}
+	free(passOrNot);
+	free(shortestPath);
+	for (int i = 0; i < number; i++) {
+		free(a[i]);
+	}
+	free(a);
+	
+	
+	return 0;
+}
+
+int findSmall() {
+	int min = 1000000;
+	int small = 0;
+	for (int i = 0; i < number; i++) {
+		if (shortestPath[i] < min && passOrNot[i] != 1) {
+			min = shortestPath[i];
+			small = i;
+		}
+	}
+	return small;
+}
+
+
+
+void dijkstra(int fixed) {
+	for (int i = 0; i < number; i++) {
+		shortestPath[i] = a[fixed][i];
+	}
+
+	passOrNot[fixed] = 1;
+	for (int i = 0; i < number - 1; i++) {
+		int current = findSmall();
+		passOrNot[current] = 1;
+		for (int j = 0; j < number; j++) {
+			if (passOrNot[j] != 1) {
+				if (shortestPath[current] + a[current][j] < shortestPath[j]) {
+					shortestPath[j] = shortestPath[current] + a[current][j];
+				}
+			}
+		}
+	}
+}
+
+
+//=========================================
+//시간 복잡도가 n*log n인 
+
+#include<iostream>
+#include<vector>
+#include<queue>
+
+using namespace std;
+
+int number = 6;
+int INF = 100000000;
+vector<pair<int, int>>a[7];
+int d[7];
+
+void dijkstra(int start) {
+	d[start] = 0;
+	priority_queue<pair<int, int>>pq;
+	pq.push(make_pair(start, 0));
+
+	while (!pq.empty()) {
+		int current = pq.top().first;
+		int distance = -pq.top().second;
+		cout << current << ' ' << distance << endl;
+		pq.pop();
+		if (d[current] < distance)continue;
+		for (int i = 0; i < a[current].size(); i++) {
+			int next = a[current][i].first;
+			int nextDistance = distance + a[current][i].second;
+			if (nextDistance < d[next]) {
+				d[next] = nextDistance;
+				pq.push(make_pair(next, -nextDistance));
+			}
+		}
+	}
+}
+
+
+int main(void) {
+	for (int i = 1; i <= number; i++) {
+		d[i] = INF;
+	}
+
+	a[1].push_back(make_pair(2, 5));
+	a[1].push_back(make_pair(4,2));
+	a[1].push_back(make_pair(5,4));
+
+	a[2].push_back(make_pair(1, 5));
+	a[2].push_back(make_pair(3,3));
+	a[2].push_back(make_pair(4, 3));
+
+	a[3].push_back(make_pair(2, 3));
+	a[3].push_back(make_pair(4, 3));
+	a[3].push_back(make_pair(5, 4));
+	a[3].push_back(make_pair(6, 2));
+	
+	a[4].push_back(make_pair(1, 2));
+	a[4].push_back(make_pair(2, 3));
+	a[4].push_back(make_pair(3, 3));
+	a[4].push_back(make_pair(5, 1));
+
+	a[5].push_back(make_pair(1, 4));
+	a[5].push_back(make_pair(3, 4));
+	a[5].push_back(make_pair(4, 1));
+	a[5].push_back(make_pair(6, 2));
+
+	a[6].push_back(make_pair(3, 2));
+	a[6].push_back(make_pair(5, 2));
+
+	dijkstra(1);
+
+	for (int i = 1; i <= number; i++) {
+		cout <<' '<< d[i];
+	}
+}
